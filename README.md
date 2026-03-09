@@ -2,6 +2,10 @@
 
 `DB_export` is a Maya CLI-first plugin wrapper for DemBones.
 
+Compatibility note:
+Tested on Autodesk Maya 2026.3.
+Support for earlier Maya versions is not guaranteed.
+
 It does exactly this:
 1. Takes one selected deforming mesh shape from Maya.
 2. Exports cached `rest FBX` + `anim ABC`.
@@ -24,9 +28,13 @@ Drag this file into Maya viewport/Script Editor:
 
 Installer will:
 - copy `db_export` Python package into Maya modules folder,
-- copy `third_party/dem_bones_repo/bin/Windows/DemBones.exe`,
+- download `DemBones.exe` from the original DemBones release URL into Maya module `bin`,
 - create `DB_export.mod`,
 - open `DB_export` UI.
+
+Default CLI source URL (primary):
+
+`https://raw.githubusercontent.com/electronicarts/dem-bones/master/bin/Windows/DemBones.exe`
 
 ## Open UI manually
 
@@ -46,4 +54,3 @@ db_export.open_window()
 - Exposes CLI params in UI:
   - bones, bindUpdate, nnz, nInitIters, nIters, tolerance, patience,
   - frame range and namespace.
-
