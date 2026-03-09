@@ -20,6 +20,11 @@ Drag this file into Maya viewport/Script Editor:
 
 `DB_export_dragdrop.py`
 
+Why there are two drag-and-drop scripts:
+- `DB_export_dragdrop.py` is the main installer for artists and normal updates.
+- `tools/DB_export_dragdrop_refresh.py` is a fallback for developers/support when Maya keeps old modules in memory and the main installer appears to load an old version.
+- In normal usage, use only `DB_export_dragdrop.py`.
+
 Installer will:
 - copy `db_export` Python package into Maya modules folder,
 - download `DemBones.exe` from the original DemBones release URL into Maya module `bin`,
