@@ -14,12 +14,6 @@ It does exactly this:
 
 No preview/solver parity mode is included in this version.
 
-## Legacy snapshot
-
-Previous implementation was archived to:
-
-`OLD/legacy_snapshot_20260305_154509`
-
 ## Install in Maya (drag-and-drop)
 
 Drag this file into Maya viewport/Script Editor:
