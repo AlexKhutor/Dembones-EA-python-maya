@@ -118,7 +118,7 @@ def _collect_deformers(shape: str) -> tuple[list[str], list[str]]:
 def resolve_selected_mesh_with_deformers() -> SelectedMeshInfo:
     selected = cmds.ls(selection=True, long=True) or []
     if not selected:
-        raise RuntimeError("Ничего не выделено. Выдели shape или transform деформируемого меша.")
+        raise RuntimeError("Nothing selected. Select a deforming mesh shape or transform.")
 
     mesh_shapes = []
     for item in selected:
@@ -129,22 +129,22 @@ def resolve_selected_mesh_with_deformers() -> SelectedMeshInfo:
 
     mesh_shapes = sorted(set(mesh_shapes))
     if not mesh_shapes:
-        raise RuntimeError("В выделении нет renderable mesh shape.")
+        raise RuntimeError("Selection does not contain a renderable mesh shape.")
     if len(mesh_shapes) > 1:
         raise RuntimeError(
-            "Выделено несколько mesh shape. Оставь выделенным один shape/transform."
+            "Multiple mesh shapes selected. Leave only one shape or transform selected."
         )
 
     shape = mesh_shapes[0]
     parent = cmds.listRelatives(shape, parent=True, fullPath=True) or []
     if not parent:
-        raise RuntimeError("Не удалось определить transform для выбранного shape.")
+        raise RuntimeError("Failed to resolve the transform for the selected shape.")
     transform = parent[0]
 
     deformers, deformer_types = _collect_deformers(shape)
     if not deformers:
         raise RuntimeError(
-            "У выбранного shape не найдено деформеров/динамических источников в history/inMesh."
+            "No deformers or dynamic inputs were found on the selected shape in history/inMesh."
         )
 
     return SelectedMeshInfo(

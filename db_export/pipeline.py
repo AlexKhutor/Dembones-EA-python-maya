@@ -135,9 +135,9 @@ def _format_probe(probe: dict[int, float]) -> str:
 
 def prepare_run(settings: CliRunSettings, log) -> PreparedRun:
     if not os.path.isfile(settings.cli_exe):
-        raise RuntimeError("CLI не найден: {0}".format(settings.cli_exe))
+        raise RuntimeError("CLI not found: {0}".format(settings.cli_exe))
     if settings.frame_end < settings.frame_start:
-        raise RuntimeError("Frame End должен быть >= Frame Start.")
+        raise RuntimeError("Frame End must be >= Frame Start.")
 
     _ensure_maya_io_plugins()
     selected = resolve_selected_mesh_with_deformers()
@@ -258,7 +258,7 @@ def export_result_fbx(prepared: PreparedRun, settings: CliRunSettings, log) -> s
 
 def import_cli_result(prepared: PreparedRun, namespace: str, settings: CliRunSettings, log) -> dict:
     if not os.path.isfile(prepared.out_fbx):
-        raise RuntimeError("CLI output FBX не найден: {0}".format(prepared.out_fbx))
+        raise RuntimeError("CLI output FBX not found: {0}".format(prepared.out_fbx))
 
     has_anim_tokens, token_counts = fbx_animation_token_probe(prepared.out_fbx)
     log("out_fbx_has_anim_tokens: {0}".format(has_anim_tokens))

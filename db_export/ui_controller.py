@@ -68,7 +68,7 @@ class CliRunController(QtCore.QObject):
                 pass
             else:
                 raise RuntimeError(
-                    "Уже выполняется другой CLI-прогон DB_export. Дождись завершения текущего запуска."
+                    "Another DB_export CLI run is already in progress. Wait for the current run to finish."
                 )
         self._global_run_lock = lock_file
         self.log.emit("global_run_lock_acquired: {0}".format(str(lock_path)))
@@ -222,7 +222,7 @@ class CliRunController(QtCore.QObject):
                 except Exception:
                     pass
             raise RuntimeError(
-                "Не удалось заблокировать source mesh для безопасного прогона: {0}".format(
+                "Failed to lock source mesh for a safe run: {0}".format(
                     ", ".join(failed)
                 )
             )
@@ -256,7 +256,7 @@ class CliRunController(QtCore.QObject):
 
     def start(self, settings: CliRunSettings):
         if self._process is not None:
-            raise RuntimeError("CLI процесс уже выполняется.")
+            raise RuntimeError("CLI process is already running.")
 
         self._acquire_global_run_lock()
         self._settings = settings
@@ -265,14 +265,14 @@ class CliRunController(QtCore.QObject):
         self._stopping_requested = False
 
         try:
-            self._set_progress(1, "Подготовка экспорта...")
+            self._set_progress(1, "Preparing export...")
             self.log.emit("=== DB_export run started ===")
             self.log.emit("time: {0}".format(now_stamp()))
             self.log.emit("cli_exe: {0}".format(settings.cli_exe))
 
             self._prepared = prepare_run(settings, self.log.emit)
             self._lock_source_nodes()
-            self._set_progress(12, "Экспорт FBX/ABC выполнен")
+            self._set_progress(12, "FBX/ABC export completed")
 
             args = build_cli_args(settings, self._prepared)
             self.log.emit("cli_args: {0}".format(" ".join(args)))
@@ -289,13 +289,13 @@ class CliRunController(QtCore.QObject):
 
             if not process.waitForStarted(3000):
                 self._process = None
-                raise RuntimeError("Не удалось запустить CLI процесс.")
+                raise RuntimeError("Failed to start CLI process.")
             try:
                 self._write_run_state(int(process.processId()))
             except Exception:
                 pass
 
-            self._set_progress(18, "CLI запущен")
+            self._set_progress(18, "CLI started")
             self.run_started.emit()
         except Exception:
             self._release_guards()
@@ -320,22 +320,22 @@ class CliRunController(QtCore.QObject):
 
         line_l = line.lower()
         if "reading abcs" in line_l:
-            self._set_progress(22, "CLI: чтение Alembic")
+            self._set_progress(22, "CLI: reading Alembic")
             return
         if "reading fbx" in line_l:
-            self._set_progress(28, "CLI: чтение FBX")
+            self._set_progress(28, "CLI: reading FBX")
             return
         if "initializing bones" in line_l:
-            self._set_progress(35, "CLI: инициализация костей")
+            self._set_progress(35, "CLI: initializing bones")
             return
         if "computing skinning decomposition" in line_l:
-            self._set_progress(40, "CLI: оптимизация skinning")
+            self._set_progress(40, "CLI: optimizing skinning")
             return
         if "convergence is reached" in line_l:
-            self._set_progress(92, "CLI: сходимость достигнута")
+            self._set_progress(92, "CLI: convergence reached")
             return
         if "writing outputs" in line_l:
-            self._set_progress(95, "CLI: запись output FBX")
+            self._set_progress(95, "CLI: writing output FBX")
             return
 
         m = self._ITER_RE.search(line)
@@ -344,7 +344,7 @@ class CliRunController(QtCore.QObject):
             total = max(1, int(self._settings.n_iters))
             frac = min(iter_idx + 1, total) / float(total)
             value = 40 + int(50 * frac)
-            self._set_progress(value, "CLI: итерация {0}/{1}".format(iter_idx + 1, total))
+            self._set_progress(value, "CLI: iteration {0}/{1}".format(iter_idx + 1, total))
 
     def _on_ready_read(self):
         if self._process is None:
@@ -368,32 +368,32 @@ class CliRunController(QtCore.QObject):
         try:
             if self._stopping_requested:
                 self.log.emit("CLI process stopped by UI close/user action.")
-                self._set_progress(100, "Остановлено")
-                self.run_finished.emit(False, "Запуск остановлен.")
+                self._set_progress(100, "Stopped")
+                self.run_finished.emit(False, "Run stopped.")
                 return
 
             if exit_code != 0:
-                message = "CLI завершился с кодом {0}".format(exit_code)
+                message = "CLI exited with code {0}".format(exit_code)
                 self.log.emit(message)
-                self._set_progress(100, "Ошибка CLI")
+                self._set_progress(100, "CLI error")
                 self.run_finished.emit(False, message)
                 return
 
             if self._settings is None:
                 raise RuntimeError("Internal error: missing run settings.")
 
-            imported_message = "Импорт в сцену пропущен (по настройке UI)."
+            imported_message = "Scene import skipped by UI setting."
             result = None
             if self._settings.import_result_in_scene:
-                self._set_progress(97, "Импорт FBX в Maya...")
+                self._set_progress(97, "Importing FBX into Maya...")
                 namespace = self._settings.namespace if self._settings else "db_export_cli"
                 result = import_cli_result(self._prepared, namespace, self._settings, self.log.emit)
                 if not result.get("anim_curves") and not result.get("keyed_joints"):
                     self.log.emit(
-                        "Warning: импорт выполнен, но не найдены ни animCurve, ни keyframes на joint."
+                        "Warning: import completed, but no animCurve or joint keyframes were found."
                     )
                 imported_message = (
-                    "CLI результат импортирован в сцену "
+                    "CLI result imported into scene "
                     "(ns={0}, method={1}).".format(
                         result.get("namespace", "unknown"),
                         result.get("method", "unknown"),
@@ -407,13 +407,13 @@ class CliRunController(QtCore.QObject):
             self.log.emit("cache_run_dir: {0}".format(self._prepared.run_dir))
             self.log.emit("cache_manifest: {0}".format(self._prepared.latest_manifest))
             self.log.emit("=== DB_export run finished ===")
-            self._set_progress(100, "Готово")
+            self._set_progress(100, "Done")
             self.run_finished.emit(
                 True,
-                "Готово: {0}\nFBX сохранен: {1}".format(imported_message, export_path),
+                "Done: {0}\nFBX saved: {1}".format(imported_message, export_path),
             )
         except Exception as exc:
-            self._set_progress(100, "Ошибка")
+            self._set_progress(100, "Error")
             self.run_finished.emit(False, str(exc))
         finally:
             self._stopping_requested = False

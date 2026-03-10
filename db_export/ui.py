@@ -166,11 +166,11 @@ class DBExportWindow(QtWidgets.QDialog):
         try:
             settings = self._collect_settings()
             self.progress_bar.setValue(0)
-            self.progress_label.setText("Запуск...")
+            self.progress_label.setText("Starting...")
             self.controller.start(settings)
         except Exception as exc:
             self.progress_bar.setValue(0)
-            self.progress_label.setText("Ошибка запуска")
+            self.progress_label.setText("Start failed")
             QtWidgets.QMessageBox.critical(self, "DB_export failed", str(exc))
 
     def _on_run_started(self):

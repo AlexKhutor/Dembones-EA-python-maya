@@ -10,21 +10,21 @@ from .paths import default_cache_root, default_cli_path, default_result_export_r
 
 def help_text() -> str:
     return (
-        "Быстрый старт (обычно достаточно):\n"
+        "Quick start (usually enough):\n"
         "- Bones: 128\n"
         "- Max Influences Per Vertex: 8\n"
         "- Hierarchy Build Mode: Regroup joints under one root\n"
         "- Frame Step: 1\n\n"
         "Main:\n"
-        "- крутить в первую очередь Bones / Max Influences / диапазон кадров.\n\n"
+        "- Tune Bones / Max Influences / frame range first.\n\n"
         "Advanced:\n"
-        "- Initialization Iterations: качество стартовой раскладки.\n"
-        "- Optimization Iterations: финальная точность (дольше = точнее).\n"
-        "- Convergence Threshold: порог остановки (меньше = точнее, дольше).\n"
-        "- Early Stop Patience: сколько ждать улучшений перед stop.\n\n"
+        "- Initialization Iterations: quality of the initial layout.\n"
+        "- Optimization Iterations: final accuracy (longer = more accurate).\n"
+        "- Convergence Threshold: stop threshold (smaller = more accurate, slower).\n"
+        "- Early Stop Patience: how long to wait for improvement before stopping.\n\n"
         "Import Result Into Scene:\n"
-        "- ON: автоматически импортирует итоговый FBX в сцену.\n"
-        "- OFF: только сохраняет FBX в Result FBX Folder."
+        "- ON: automatically imports the final FBX into the current scene.\n"
+        "- OFF: only saves the FBX into Result FBX Folder."
     )
 
 
@@ -58,11 +58,11 @@ def build_window_ui(window) -> None:
     window.selection_label = QtWidgets.QLineEdit(window)
     window.selection_label.setReadOnly(True)
     window.selection_label.setPlaceholderText(
-        "Сначала выбери shape/transform в Outliner, затем нажми 'Use Selection'"
+        "Select a shape/transform in the Outliner first, then click 'Use Selection'"
     )
     window.selection_label.setToolTip(
-        "Ожидается один renderable mesh shape. "
-        "Проверяется, что shape реально деформируется (history/inMesh)."
+        "Expected: one renderable mesh shape. "
+        "The tool verifies that the shape is actually deforming (history/inMesh)."
     )
     window.selection_info = QtWidgets.QLabel("-", window)
     window.btn_use_selection = QtWidgets.QPushButton("Use Selection", window)
@@ -77,39 +77,39 @@ def build_window_ui(window) -> None:
 
     window.cli_path_edit = QtWidgets.QLineEdit(default_cli_path(), window)
     window.cli_path_edit.setToolTip(
-        "Путь к DemBones.exe.\n"
-        "Если указан неверно: запуск не стартует.\n"
-        "Рекомендация: использовать установленный путь из модуля DB_export."
+        "Path to DemBones.exe.\n"
+        "If the path is wrong, the run will not start.\n"
+        "Recommended: use the installed path from the DB_export module."
     )
     window.cache_edit = QtWidgets.QLineEdit(default_cache_root(), window)
     window.cache_edit.setToolTip(
-        "Корень кэша. Для каждого запуска создается отдельная папка run_id.\n"
-        "Файлы не удаляются: rest.fbx, anim.abc, output.fbx, manifest.\n"
-        "Чем чаще итерации, тем важнее быстрый локальный диск."
+        "Cache root. A separate run_id folder is created for each run.\n"
+        "Files are not deleted: rest.fbx, anim.abc, output.fbx, manifest.\n"
+        "The more often you iterate, the more important a fast local disk becomes."
     )
     window.cache_edit.editingFinished.connect(window._refresh_cache_size)
 
     window.result_export_edit = QtWidgets.QLineEdit(default_result_export_root(), window)
     window.result_export_edit.setToolTip(
-        "Папка для финального FBX результата CLI.\n"
-        "После каждого запуска итоговый FBX копируется в эту папку."
+        "Folder for the final CLI result FBX.\n"
+        "After each run, the output FBX is copied to this folder."
     )
     window.namespace_edit = QtWidgets.QLineEdit("db_export_cli", window)
     window.namespace_edit.setToolTip(
-        "Namespace для импортируемого FBX.\n"
-        "Если пусто/занято: автоматически выбирается уникальный namespace.\n"
-        "Влияет только на удобство структуры сцены, не на качество результата."
+        "Namespace for the imported FBX.\n"
+        "If empty or already occupied, a unique namespace is chosen automatically.\n"
+        "This only affects scene organization, not result quality."
     )
 
     window.bones_spin = QtWidgets.QSpinBox(window)
     window.bones_spin.setRange(1, 1024)
     window.bones_spin.setValue(128)
     window.bones_spin.setToolTip(
-        "Целевое количество костей (-b).\n"
-        "Больше костей: точнее повтор формы, но тяжелее риг/медленнее solve.\n"
-        "Меньше костей: быстрее и стабильнее, но больше сглаживания.\n"
-        "Старт: 64-128 для простых мешей, 128-256 для сложных деформируемых мешей.\n"
-        "Оптимум для большинства мешей: 128."
+        "Target bone count (-b).\n"
+        "More bones: closer shape reproduction, but heavier rig and slower solve.\n"
+        "Fewer bones: faster and more stable, but with more smoothing.\n"
+        "Starting point: 64-128 for simple meshes, 128-256 for complex deforming meshes.\n"
+        "A good default for most meshes is 128."
     )
 
     window.bind_update_combo = QtWidgets.QComboBox(window)
@@ -118,40 +118,40 @@ def build_window_ui(window) -> None:
     window.bind_update_combo.addItem("Regroup joints under one root (2)", 2)
     window.bind_update_combo.setCurrentIndex(2)
     window.bind_update_combo.setToolTip(
-        "Режим построения иерархии костей (--bindUpdate).\n"
-        "0: минимальные изменения иерархии.\n"
-        "1: частичная перестройка.\n"
-        "2: одна общая root-иерархия (обычно лучший вариант для Maya).\n"
-        "Рекомендуется: 2."
+        "Bone hierarchy build mode (--bindUpdate).\n"
+        "0: minimal hierarchy changes.\n"
+        "1: partial hierarchy rebuild.\n"
+        "2: one shared root hierarchy (usually the best choice for Maya).\n"
+        "Recommended: 2."
     )
 
     window.nnz_spin = QtWidgets.QSpinBox(window)
     window.nnz_spin.setRange(1, 16)
     window.nnz_spin.setValue(8)
     window.nnz_spin.setToolTip(
-        "Максимум влияний на вершину (--nnz).\n"
-        "Выше: точнее деформация и мягче переходы, но тяжелее skin/веса.\n"
-        "Ниже: чище и легче риг, но может теряться мелкая форма.\n"
-        "Рекомендуется: 8; для более жесткого результата: 6."
+        "Maximum influences per vertex (--nnz).\n"
+        "Higher: more accurate deformation and smoother transitions, but heavier skinning/weights.\n"
+        "Lower: cleaner and lighter rig, but fine detail can be lost.\n"
+        "Recommended: 8; for a tighter result try 6."
     )
 
     window.init_iters_spin = QtWidgets.QSpinBox(window)
     window.init_iters_spin.setRange(1, 500)
     window.init_iters_spin.setValue(10)
     window.init_iters_spin.setToolTip(
-        "Итерации инициализации (--nInitIters).\n"
-        "Влияет на стартовую раскладку костей/весов перед основным solve.\n"
-        "Увеличивать при плохом старте или сложной топологии.\n"
-        "Рекомендуется: 10."
+        "Initialization iterations (--nInitIters).\n"
+        "Affects the initial bone/weight layout before the main solve.\n"
+        "Increase for poor initial placement or complex topology.\n"
+        "Recommended: 10."
     )
 
     window.iters_spin = QtWidgets.QSpinBox(window)
     window.iters_spin.setRange(1, 5000)
     window.iters_spin.setValue(100)
     window.iters_spin.setToolTip(
-        "Основные итерации оптимизации (--nIters).\n"
-        "Больше: точнее (ниже RMSE), но дольше расчёт.\n"
-        "Рекомендуется: 100-150; для сложных мешей: 150-250."
+        "Main optimization iterations (--nIters).\n"
+        "Higher: more accurate (lower RMSE), but slower.\n"
+        "Recommended: 100-150; for complex meshes: 150-250."
     )
 
     window.tolerance_spin = QtWidgets.QDoubleSpinBox(window)
@@ -160,57 +160,57 @@ def build_window_ui(window) -> None:
     window.tolerance_spin.setSingleStep(0.0005)
     window.tolerance_spin.setValue(0.001)
     window.tolerance_spin.setToolTip(
-        "Порог остановки по сходимости (--tolerance).\n"
-        "Ниже: точнее, но дольше.\n"
-        "Выше: быстрее, но больше остаточная ошибка.\n"
-        "Рекомендуется: 0.001; для более точного solve: 0.0005."
+        "Convergence stop threshold (--tolerance).\n"
+        "Lower: more accurate, but slower.\n"
+        "Higher: faster, but with more residual error.\n"
+        "Recommended: 0.001; for a more accurate solve: 0.0005."
     )
 
     window.patience_spin = QtWidgets.QSpinBox(window)
     window.patience_spin.setRange(1, 100)
     window.patience_spin.setValue(3)
     window.patience_spin.setToolTip(
-        "Ранняя остановка: сколько итераций ждать улучшения (--patience).\n"
-        "Выше: стабильнее на шумных данных, но дольше.\n"
-        "Ниже: быстрее, но риск остановиться рано.\n"
-        "Рекомендуется: 3-5."
+        "Early stopping: how many iterations to wait for improvement (--patience).\n"
+        "Higher: more stable on noisy data, but slower.\n"
+        "Lower: faster, but with a higher risk of stopping too early.\n"
+        "Recommended: 3-5."
     )
 
     window.frame_start = QtWidgets.QSpinBox(window)
     window.frame_start.setRange(-100000, 100000)
     window.frame_start.setValue(1)
     window.frame_start.setToolTip(
-        "Начальный кадр диапазона.\n"
-        "Влияет на то, какие ключи войдут в solve."
+        "Start frame of the range.\n"
+        "Determines which keys are included in the solve."
     )
     window.frame_end = QtWidgets.QSpinBox(window)
     window.frame_end.setRange(-100000, 100000)
     window.frame_end.setValue(60)
     window.frame_end.setToolTip(
-        "Конечный кадр диапазона.\n"
-        "Чем длиннее диапазон, тем дольше solve."
+        "End frame of the range.\n"
+        "Longer ranges make the solve slower."
     )
     window.frame_step = QtWidgets.QSpinBox(window)
     window.frame_step.setRange(1, 1000)
     window.frame_step.setValue(1)
     window.frame_step.setToolTip(
-        "Шаг семплирования кадров.\n"
-        "1 = максимальная точность.\n"
-        "2+ ускоряет, но может пропускать быстрые движения."
+        "Frame sampling step.\n"
+        "1 = maximum accuracy.\n"
+        "2+ is faster, but may miss fast motion."
     )
 
     window.debug_cli_checkbox = QtWidgets.QCheckBox("Verbose CLI Log", window)
     window.debug_cli_checkbox.setChecked(True)
     window.debug_cli_checkbox.setToolTip(
-        "Показывать полный stdout/stderr CLI в логе.\n"
-        "Полезно для диагностики RMSE, итераций и ошибок импорта."
+        "Show full CLI stdout/stderr in the log.\n"
+        "Useful for diagnosing RMSE, iteration progress, and import errors."
     )
 
     window.import_result_checkbox = QtWidgets.QCheckBox("Import Result Into Scene", window)
     window.import_result_checkbox.setChecked(True)
     window.import_result_checkbox.setToolTip(
-        "Если включено: итоговый FBX после CLI автоматически импортируется в текущую сцену Maya.\n"
-        "Если выключено: только сохраняется файл в Result FBX Folder."
+        "If enabled, the final FBX is imported back into the current Maya scene automatically.\n"
+        "If disabled, the result is only saved to Result FBX Folder."
     )
 
     path_form.addRow("CLI Executable", _path_row(window, window.cli_path_edit, "Browse...", window._on_browse_cli))
