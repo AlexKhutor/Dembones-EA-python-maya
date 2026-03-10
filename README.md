@@ -8,6 +8,10 @@ Compatibility note:
 Tested on Autodesk Maya 2026.3.
 Support for earlier Maya versions is not guaranteed.
 
+## Demo
+
+![DB_export demo](dembones_demonstration_1080p.gif)
+
 It does exactly this:
 1. Takes one selected deforming mesh shape from Maya.
 2. Exports cached `rest FBX` + `anim ABC`.
