@@ -2,8 +2,6 @@
 
 `DB_export` is a Maya CLI-first plugin wrapper for DemBones.
 
-Keywords: Maya plugin, Maya tool, Maya Python, Maya pipeline, Maya rigging, Maya animation, DemBones, DemBones CLI, skeletal decomposition, mesh decomposition, skinning decomposition, FBX export, Alembic export, mesh-to-skeleton, animation-to-skeleton, rig reconstruction, skeletal reconstruction, deforming mesh export, character pipeline, technical art tool.
-
 Compatibility note:
 Tested on Autodesk Maya 2026.3.
 Support for earlier Maya versions is not guaranteed.
@@ -20,75 +18,14 @@ It does exactly this:
 
 No preview/solver parity mode is included in this version.
 
+This repository is a Maya DemBones CLI tool for mesh-to-skeleton workflows, skinning decomposition, rig reconstruction, and animation-to-skeleton conversion. It is intended for Maya pipeline, rigging, and technical art use cases where a deforming mesh needs to be converted into a skeletal result through FBX and Alembic export.
+
 ## Use cases
 
 - Convert deforming mesh animation into a joint-based result through DemBones CLI.
 - Export rest pose FBX and animated Alembic from Maya for skinning decomposition.
 - Re-import generated skeleton and animation back into Maya.
 - Produce a result FBX that can be handed to downstream rigging or runtime pipelines.
-
-## Search phrases
-
-This repository may be relevant if you are looking for:
-
-- Maya DemBones wrapper
-- Maya DemBones CLI tool
-- Maya mesh to skeleton workflow
-- Maya skinning decomposition tool
-- Maya skeletal reconstruction tool
-- Maya deforming mesh export pipeline
-- Maya FBX Alembic pipeline
-- Maya rig reconstruction workflow
-- Maya animation to skeleton conversion
-- Maya technical art rigging tool
-
-## Recommended GitHub topics
-
-Set these in GitHub repository settings so the project appears in related searches:
-
-- `maya`
-- `autodesk-maya`
-- `maya-plugin`
-- `maya-tool`
-- `maya-animation`
-- `maya-rigging`
-- `maya-pipeline`
-- `maya-python`
-- `maya-tools`
-- `dembones`
-- `fbx`
-- `alembic`
-- `animation`
-- `rigging`
-- `skinning`
-- `character-rigging`
-- `skinning-tools`
-- `skeletal-decomposition`
-- `mesh-decomposition`
-- `animation-baking`
-- `fbx-pipeline`
-- `alembic-pipeline`
-- `character-animation`
-- `technical-art`
-- `skeletal-animation`
-- `character-pipeline`
-
-## Distribution archive
-
-Archive for artists should contain:
-
-- `DB_export_dragdrop.py`
-- `db_export/`
-- `tools/`
-- optionally `README.md` and `LICENSE`
-
-Archive should not include:
-
-- `.git`
-- `__pycache__/`
-- `OLD_NEW/`
-- `third_party/`
-- `DemBones.exe`
 
 ## Install in Maya (drag-and-drop)
 
