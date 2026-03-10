@@ -29,9 +29,15 @@ This repository is a Maya DemBones CLI tool for mesh-to-skeleton workflows, skin
 
 ## Install in Maya (drag-and-drop)
 
-1. Download the archive.
-2. Unpack it to any local folder.
-3. Drag `DB_export_dragdrop.py` into Maya viewport or Script Editor.
+1. Download this repository from GitHub:
+   - either use `Code -> Download ZIP`
+   - or clone the repository locally
+2. Unpack the repository ZIP or open the local repository folder.
+3. Make sure these items are present in the same repository root:
+   - `DB_export_dragdrop.py`
+   - `db_export/`
+   - `tools/`
+4. Drag `DB_export_dragdrop.py` into Maya viewport or Script Editor.
 
 Why there are two drag-and-drop scripts:
 - `DB_export_dragdrop.py` is the main installer for artists and normal updates.
@@ -46,7 +52,7 @@ Installer will:
 
 Important:
 
-- `DemBones.exe` is not shipped inside the archive.
+- `DemBones.exe` is not shipped inside this repository.
 - First install requires internet access to download `DemBones.exe`.
 - If `DemBones.exe` is already present in the installed Maya module, installer will reuse it and skip download.
 
