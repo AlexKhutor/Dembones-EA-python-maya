@@ -29,15 +29,20 @@ This repository is a Maya DemBones CLI tool for mesh-to-skeleton workflows, skin
 
 ## Install in Maya (drag-and-drop)
 
-1. Download this repository from GitHub:
-   - either use `Code -> Download ZIP`
-   - or clone the repository locally
-2. Unpack the repository ZIP or open the local repository folder.
-3. Make sure these items are present in the same repository root:
+Recommended for artists:
+
+1. Download the release archive from GitHub Releases.
+2. Unpack it to any local folder.
+3. Make sure these items are present in the same folder:
    - `DB_export_dragdrop.py`
    - `db_export/`
    - `tools/`
 4. Drag `DB_export_dragdrop.py` into Maya viewport or Script Editor.
+
+Alternative for developers:
+
+1. Download this repository from GitHub with `Code -> Download ZIP` or clone it locally.
+2. Open the repository root and use the same files listed above.
 
 Why there are two drag-and-drop scripts:
 - `DB_export_dragdrop.py` is the main installer for artists and normal updates.
@@ -52,13 +57,32 @@ Installer will:
 
 Important:
 
-- `DemBones.exe` is not shipped inside this repository.
+- `DemBones.exe` is not shipped inside the release archive or this repository.
 - First install requires internet access to download `DemBones.exe`.
 - If `DemBones.exe` is already present in the installed Maya module, installer will reuse it and skip download.
 
 Default CLI source URL (primary):
 
 `https://raw.githubusercontent.com/electronicarts/dem-bones/master/bin/Windows/DemBones.exe`
+
+## Release archive contents
+
+Recommended archive contents for GitHub Releases:
+
+- `DB_export_dragdrop.py`
+- `db_export/`
+- `tools/`
+- `README.md`
+- `LICENSE`
+- `third_party/dem_bones_repo/LICENSE.md`
+
+Recommended exclusions:
+
+- `.git/`
+- `__pycache__/`
+- `OLD_NEW/`
+- local cache/output files
+- `DemBones.exe`
 
 ## Open UI manually
 
