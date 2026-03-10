@@ -65,25 +65,6 @@ Default CLI source URL (primary):
 
 `https://raw.githubusercontent.com/electronicarts/dem-bones/master/bin/Windows/DemBones.exe`
 
-## Release archive contents
-
-Recommended archive contents for GitHub Releases:
-
-- `DB_export_dragdrop.py`
-- `db_export/`
-- `tools/`
-- `README.md`
-- `LICENSE`
-- `third_party/dem_bones_repo/LICENSE.md`
-
-Recommended exclusions:
-
-- `.git/`
-- `__pycache__/`
-- `OLD_NEW/`
-- local cache/output files
-- `DemBones.exe`
-
 ## Open UI manually
 
 In Maya Script Editor (Python):
