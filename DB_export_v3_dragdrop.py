@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-# One-time refresh launcher for Maya drag-and-drop.
-# Use this file if Maya cached an old DB_export_dragdrop module in memory.
+# Maya drag-and-drop entry point.
+# Drop this file into Maya viewport/Script Editor to install DB_export_v3.
 
 import importlib
 import importlib.util
@@ -14,14 +14,13 @@ if str(_ROOT) not in sys.path:
 
 
 def _purge_cached_modules():
-    prefixes = ("db_export", "db_export_local_installer", "DB_export_dragdrop")
     for name in list(sys.modules.keys()):
         low = name.lower()
         if (
-            low == "db_export"
-            or low.startswith("db_export.")
-            or low.startswith("db_export_local_installer")
-            or low.startswith("db_export_dragdrop")
+            low == "db_export_v3"
+            or low.startswith("db_export_v3.")
+            or low.startswith("db_export_v3_local_installer")
+            or low.startswith("db_export_v3_dragdrop")
         ):
             try:
                 del sys.modules[name]
@@ -31,11 +30,11 @@ def _purge_cached_modules():
 
 
 def _load_local_installer():
-    installer_path = _ROOT / "tools" / "db_export_install.py"
+    installer_path = _ROOT / "db_export_v3_install.py"
     if not installer_path.exists():
         raise RuntimeError("Installer not found: {0}".format(installer_path))
 
-    spec = importlib.util.spec_from_file_location("db_export_local_installer", str(installer_path))
+    spec = importlib.util.spec_from_file_location("db_export_v3_local_installer", str(installer_path))
     if spec is None or spec.loader is None:
         raise RuntimeError("Failed to load installer spec: {0}".format(installer_path))
 
@@ -46,16 +45,22 @@ def _load_local_installer():
 
 def onMayaDroppedPythonFile(*args):
     _purge_cached_modules()
+    try:
+        dragdrop_file = Path(__file__).resolve()
+        stamp = dragdrop_file.stat().st_mtime
+        print("DB_export_v3 dragdrop file:", str(dragdrop_file))
+        print("DB_export_v3 dragdrop file mtime:", stamp)
+    except Exception:
+        pass
     installer = _load_local_installer()
     return installer.onMayaDroppedPythonFile(*args)
 
 
-def install_db_export(open_ui=True):
+def install_db_export_v3(open_ui: bool = True):
     _purge_cached_modules()
     installer = _load_local_installer()
-    return installer.install_db_export(open_ui=open_ui)
+    return installer.install_db_export_v3(open_ui=open_ui)
 
 
 if __name__ == "__main__":
-    install_db_export(open_ui=True)
-
+    install_db_export_v3(open_ui=True)

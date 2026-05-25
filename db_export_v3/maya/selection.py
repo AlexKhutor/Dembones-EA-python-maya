@@ -120,8 +120,24 @@ def resolve_selected_mesh_with_deformers() -> SelectedMeshInfo:
     if not selected:
         raise RuntimeError("Nothing selected. Select a deforming mesh shape or transform.")
 
+    return resolve_mesh_with_deformers_from_nodes(selected)
+
+
+def resolve_mesh_with_deformers_from_node(node: str) -> SelectedMeshInfo:
+    raw = str(node or "").strip()
+    if not raw:
+        raise RuntimeError("Mesh input is empty.")
+    if not cmds.objExists(raw):
+        raise RuntimeError("Mesh input does not exist in scene: {0}".format(raw))
+    return resolve_mesh_with_deformers_from_nodes([raw])
+
+
+def resolve_mesh_with_deformers_from_nodes(nodes: list[str]) -> SelectedMeshInfo:
+    if not nodes:
+        raise RuntimeError("Nothing selected. Select a deforming mesh shape or transform.")
+
     mesh_shapes = []
-    for item in selected:
+    for item in nodes:
         node = _strip_component(item)
         if not cmds.objExists(node):
             continue

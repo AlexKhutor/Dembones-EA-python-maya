@@ -1,6 +1,8 @@
-# DB_export
+# DB_export_v3 for Autodesk Maya and DemBones
 
-`DB_export` is a Maya CLI-first plugin wrapper for DemBones.
+`DB_export_v3` is a Python Maya plugin and CLI wrapper around EA Dem Bones (`DemBones.exe`). It converts a deforming mesh, cloth simulation cache, or Alembic animation into a skeletal FBX result by exporting a rest-pose FBX and animated Alembic, running DemBones in the background, and importing the generated skeleton and animation back into Autodesk Maya.
+
+If you are looking for a **Maya DemBones plugin**, a **Python wrapper for EA Dem Bones**, an **FBX and Alembic to skeleton workflow**, or a **cloth simulation to bones tool for Autodesk Maya**, this repository is the maintained production baseline.
 
 Compatibility note:
 Tested on Autodesk Maya 2026.3.
@@ -8,78 +10,101 @@ Support for earlier Maya versions is not guaranteed.
 
 ## Demo
 
-![DB_export demo](dembones_demonstration_1080p.gif)
+![DB_export_v3 demo](dembones_demonstration_1080p.gif)
 
-It does exactly this:
-1. Takes one selected deforming mesh shape from Maya.
-2. Exports cached `rest FBX` + `anim ABC`.
-3. Runs `DemBones.exe` in background.
-4. Imports CLI output FBX back into Maya (with animation and skeleton).
+## What This Plugin Does
 
-No preview/solver parity mode is included in this version.
+1. Takes one selected deforming mesh from Maya.
+2. Exports cached `rest FBX` and animated `Alembic`.
+3. Runs `DemBones.exe` in the background.
+4. Imports the generated FBX skeleton and animation back into Maya.
+5. Exports a final FBX deliverable for downstream animation, rigging, or runtime pipeline use.
 
-This repository is a Maya DemBones CLI tool for mesh-to-skeleton workflows, skinning decomposition, rig reconstruction, and animation-to-skeleton conversion. It is intended for Maya pipeline, rigging, and technical art use cases where a deforming mesh needs to be converted into a skeletal result through FBX and Alembic export.
+This makes the repository useful for:
 
-## Use cases
+- mesh-to-skeleton conversion in Maya
+- cloth or simulation to bones workflows
+- skinning decomposition and rig reconstruction
+- animation-to-skeleton conversion through DemBones
+- technical art, rigging, and Maya pipeline automation
+- solving onto an existing Maya skeleton hierarchy
 
-- Convert deforming mesh animation into a joint-based result through DemBones CLI.
-- Export rest pose FBX and animated Alembic from Maya for skinning decomposition.
-- Re-import generated skeleton and animation back into Maya.
-- Produce a result FBX that can be handed to downstream rigging or runtime pipelines.
+## Main Workflows
 
-## Install in Maya (drag-and-drop)
+### Generate Skeleton
 
-Recommended for artists:
+Use this mode when DemBones should build a new skeleton from one animated or deforming mesh.
 
-1. Download the release archive from GitHub Releases.
-2. Unpack it to any local folder.
-3. Make sure these items are present in the same folder:
-   - `DB_export_dragdrop.py`
-   - `db_export/`
-   - `tools/`
-4. Drag `DB_export_dragdrop.py` into Maya viewport or Script Editor.
+Typical use cases:
 
-Alternative for developers:
+- cloth simulation to skeleton
+- cached mesh animation to joints
+- automatic bone extraction from deformation
 
-1. Download this repository from GitHub with `Code -> Download ZIP` or clone it locally.
-2. Open the repository root and use the same files listed above.
+### Use Existing Skeleton
 
-Why there are two drag-and-drop scripts:
-- `DB_export_dragdrop.py` is the main installer for artists and normal updates.
-- `tools/DB_export_dragdrop_refresh.py` is a fallback for developers/support when Maya keeps old modules in memory and the main installer appears to load an old version.
-- In normal usage, use only `DB_export_dragdrop.py`.
+Use this mode when the scene already contains the target hierarchy and a bound mesh.
 
-Installer will:
-- copy `db_export` Python package into Maya modules folder,
-- download `DemBones.exe` from the original DemBones release URL into Maya module `bin` if it is not installed yet,
-- create `DB_export.mod`,
-- open `DB_export` UI.
+Typical use cases:
+
+- solving deformation onto an existing game skeleton
+- validating a DemBones solve against an existing hierarchy
+- reusing a prepared rig structure inside Maya
+
+## Repository Layout
+
+- `DB_export_v3_dragdrop.py`
+  Maya drag-and-drop installer entry point
+- `db_export_v3_install.py`
+  installer logic for Maya modules deployment
+- `db_export_v3/`
+  production runtime package
+- `docs/`
+  public documentation for install, workflow, and architecture
+- `dembones_demonstration_1080p.gif`
+  demo animation
+
+## Install in Maya
+
+Recommended for artists and TDs:
+
+1. Download the repository as a ZIP or clone it locally.
+2. Make sure these items are in the repository root:
+   - `DB_export_v3_dragdrop.py`
+   - `db_export_v3_install.py`
+   - `db_export_v3/`
+3. Drag `DB_export_v3_dragdrop.py` into the Maya viewport or Script Editor.
+
+Installer behavior:
+
+- copies `db_export_v3` into the Maya modules folder
+- downloads `DemBones.exe` from the official DemBones source if it is not already installed
+- creates the Maya module entry
+- opens the plugin UI
 
 Important:
 
-- `DemBones.exe` is not shipped inside the release archive or this repository.
-- First install requires internet access to download `DemBones.exe`.
-- If `DemBones.exe` is already present in the installed Maya module, installer will reuse it and skip download.
+- `DemBones.exe` is not committed to this public repository
+- first install may require internet access if the binary is not already installed locally
+- if `DemBones.exe` already exists in the Maya module install, the installer reuses it
 
-Default CLI source URL (primary):
-
-`https://raw.githubusercontent.com/electronicarts/dem-bones/master/bin/Windows/DemBones.exe`
-
-## Open UI manually
+## Open UI Manually
 
 In Maya Script Editor (Python):
 
 ```python
-import db_export
-db_export.open_window()
+import db_export_v3
+db_export_v3.open_window()
 ```
 
-## Key behavior
+## Documentation
 
-- Works only with **one selected mesh shape** (or transform with one renderable shape).
-- Validates that shape has deformers/dynamic input in history/inMesh.
-- Keeps cached exports and CLI outputs in:
-  - default: `~/Documents/maya/<version>/DB_export/cache`
-- Exposes CLI params in UI:
-  - bones, bindUpdate, nnz, nInitIters, nIters, tolerance, patience,
-  - frame range and namespace.
+- [User Guide](docs/USER_GUIDE.md)
+- [Status](docs/STATUS.md)
+- [Architecture](docs/ARCHITECTURE.md)
+
+## License
+
+This repository is distributed under the license in [LICENSE](LICENSE).
+
+DemBones itself is an EA project and should be treated according to its own license and distribution terms.
