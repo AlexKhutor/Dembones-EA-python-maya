@@ -223,10 +223,13 @@ def run_clean_scene_deliverable_export(
         "--node-prefix",
         node_prefix,
     ]
+    if bool(getattr(settings, "wrap_world_root", False)):
+        command.append("--wrap-world-root")
     log("result_export_mayapy: {0}".format(mayapy_exe))
     log("result_export_helper_script: {0}".format(helper_script))
     log("result_export_helper_log: {0}".format(helper_log_path))
     log("result_export_node_prefix: {0}".format(node_prefix))
+    log("result_export_wrap_world_root: {0}".format(bool(getattr(settings, "wrap_world_root", False))))
     helper_env = os.environ.copy()
     helper_env["MAYA_SKIP_USERSETUP_PY"] = "1"
     helper_env["PYTHONIOENCODING"] = "utf-8"

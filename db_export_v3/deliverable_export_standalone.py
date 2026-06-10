@@ -190,6 +190,90 @@ def _mesh_parent_nodes(cmds) -> list[str]:
     return parents
 
 
+def _export_candidate_nodes(cmds) -> list[str]:
+    export_nodes: list[str] = []
+    seen: set[str] = set()
+    for node in _root_joint_nodes(cmds) + _mesh_parent_nodes(cmds):
+        if not node or not cmds.objExists(node) or node in seen:
+            continue
+        seen.add(node)
+        export_nodes.append(node)
+    return export_nodes
+
+
+def _wrapper_parent_targets(cmds) -> list[str]:
+    candidates = _export_candidate_nodes(cmds)
+    candidate_set = set(candidates)
+    targets: list[str] = []
+    for node in candidates:
+        current = node
+        has_candidate_ancestor = False
+        while True:
+            parent = cmds.listRelatives(current, parent=True, fullPath=True) or []
+            if not parent:
+                break
+            current = parent[0]
+            if current in candidate_set:
+                has_candidate_ancestor = True
+                break
+        if not has_candidate_ancestor:
+            targets.append(node)
+    return targets
+
+
+def _apply_world_root_wrapper(cmds, log: _Logger) -> dict:
+    targets = _wrapper_parent_targets(cmds)
+    if not targets:
+        result = {
+            "performed": False,
+            "reason": "no_export_targets",
+            "targetCount": 0,
+            "wrapperJoint": "",
+        }
+        log.write("clean_export_world_root_wrapper: {0}".format(json.dumps(result, sort_keys=True)))
+        return result
+
+    cmds.select(clear=True)
+    wrapper_joint = cmds.joint(name="world_root_wrapper", position=(0.0, 0.0, 0.0))
+    for attr_name in ("translateX", "translateY", "translateZ", "rotateX", "rotateY", "rotateZ"):
+        try:
+            cmds.setAttr("{0}.{1}".format(wrapper_joint, attr_name), 0.0)
+        except Exception:
+            pass
+    for attr_name in ("scaleX", "scaleY", "scaleZ"):
+        try:
+            cmds.setAttr("{0}.{1}".format(wrapper_joint, attr_name), 1.0)
+        except Exception:
+            pass
+    for attr_name in ("jointOrientX", "jointOrientY", "jointOrientZ"):
+        plug = "{0}.{1}".format(wrapper_joint, attr_name)
+        if not cmds.objExists(plug):
+            continue
+        try:
+            cmds.setAttr(plug, 0.0)
+        except Exception:
+            pass
+
+    parented_nodes: list[str] = []
+    for node in targets:
+        if node == wrapper_joint or not cmds.objExists(node):
+            continue
+        result = cmds.parent(node, wrapper_joint, absolute=True) or []
+        parented_nodes.append(str(result[0] if result else node))
+
+    wrapper_values = cmds.ls(wrapper_joint, long=True) or [wrapper_joint]
+    wrapper_joint = str(wrapper_values[0] or wrapper_joint)
+    result = {
+        "performed": True,
+        "reason": "",
+        "targetCount": int(len(parented_nodes)),
+        "wrapperJoint": wrapper_joint,
+        "targetPreview": parented_nodes[:25],
+    }
+    log.write("clean_export_world_root_wrapper: {0}".format(json.dumps(result, sort_keys=True)))
+    return result
+
+
 def _safe_attr_get(cmds, node: str, attr: str, default=None):
     plug = "{0}.{1}".format(node, attr)
     if not node or not cmds.objExists(plug):
@@ -295,14 +379,7 @@ def _enforce_export_mesh_visibility(cmds, log: _Logger) -> list[dict]:
 
 
 def _export_nodes(cmds) -> list[str]:
-    export_nodes: list[str] = []
-    seen: set[str] = set()
-    for node in _root_joint_nodes(cmds) + _mesh_parent_nodes(cmds):
-        if not node or not cmds.objExists(node) or node in seen:
-            continue
-        seen.add(node)
-        export_nodes.append(node)
-    return export_nodes
+    return _export_candidate_nodes(cmds)
 
 
 def _node_uuid(cmds, node: str) -> str:
@@ -956,6 +1033,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--step", type=int, required=True)
     parser.add_argument("--log-path", default="")
     parser.add_argument("--node-prefix", default="")
+    parser.add_argument("--wrap-world-root", action="store_true")
     return parser.parse_args(argv)
 
 
@@ -978,6 +1056,7 @@ def main(argv: list[str]) -> int:
         log.write("clean_export_source: {0}".format(source_fbx))
         log.write("clean_export_destination: {0}".format(dest_fbx))
         log.write("clean_export_node_prefix: {0}".format(node_prefix or "<none>"))
+        log.write("clean_export_wrap_world_root_requested: {0}".format(bool(args.wrap_world_root)))
         _ensure_fbx_plugin(cmds)
 
         cmds.file(new=True, force=True)
@@ -990,6 +1069,12 @@ def main(argv: list[str]) -> int:
         else:
             log.write("clean_export_removed_namespaces: none")
 
+        wrapper_result = _apply_world_root_wrapper(cmds, log) if args.wrap_world_root else {
+            "performed": False,
+            "reason": "disabled",
+            "targetCount": 0,
+            "wrapperJoint": "",
+        }
         renamed_nodes = _rename_export_nodes(cmds, node_prefix or "export", log)
         log.write(
             "clean_export_mesh_visibility_before_fix: {0}".format(
@@ -1014,6 +1099,7 @@ def main(argv: list[str]) -> int:
             "sourcePath": source_fbx,
             "destinationPath": dest_fbx,
             "removedNamespaces": removed_namespaces,
+            "worldRootWrapper": wrapper_result,
             "renamedNodes": renamed_nodes,
             "visibilityChanges": visibility_changes,
             "exportNodes": export_nodes,

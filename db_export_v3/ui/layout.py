@@ -33,7 +33,8 @@ _FORM_LABELS = (
     "Source Alembic",
     "Bound Init Mesh",
     "Fixed Hierarchy Root",
-    "Hierarchy Build Mode",
+    "DemBones Hierarchy Mode",
+    "World Root Wrapper",
     "Initialization Iterations",
     "Optimization Iterations",
     "Convergence Threshold",
@@ -152,10 +153,21 @@ def build_window_ui(window) -> None:
     window.bones_spin.setValue(128)
 
     window.bind_update_combo = QtWidgets.QComboBox(window)
-    window.bind_update_combo.addItem("Keep source hierarchy (0)", 0)
-    window.bind_update_combo.addItem("Partial hierarchy update (1)", 1)
-    window.bind_update_combo.addItem("Regroup joints under one root (2)", 2)
+    window.bind_update_combo.addItem("Keep source hierarchy (CLI 0)", 0)
+    window.bind_update_combo.addItem("Partial hierarchy update (CLI 1)", 1)
+    window.bind_update_combo.addItem("Regroup under one solved root (CLI 2)", 2)
     window.bind_update_combo.setCurrentIndex(2)
+    window.bind_update_combo.setToolTip(
+        "Direct DemBones CLI hierarchy mode (--bindUpdate).\n"
+        "This controls only how DemBones builds or updates the solved hierarchy.\n"
+        "It does not create an extra empty wrapper root in Maya."
+    )
+    window.wrap_world_root_checkbox = QtWidgets.QCheckBox("Create empty world root at 0,0,0", window)
+    window.wrap_world_root_checkbox.setChecked(False)
+    window.wrap_world_root_checkbox.setToolTip(
+        "Adds one extra static wrapper joint above the solved result during final clean-scene FBX export.\n"
+        "The wrapper is written into the final deliverable FBX and is not part of the DemBones solve."
+    )
 
     window.nnz_spin = OptionSliderWidget(parent=window)
     window.nnz_spin.setRange(1, 16)
@@ -236,10 +248,24 @@ def build_window_ui(window) -> None:
         "Transforms Only is diagnostic and can produce unstable child-joint translate solves."
     )
     window.fixed_bind_update_combo = QtWidgets.QComboBox(window)
-    window.fixed_bind_update_combo.addItem("Keep source hierarchy (0)", 0)
-    window.fixed_bind_update_combo.addItem("Partial hierarchy update (1)", 1)
-    window.fixed_bind_update_combo.addItem("Regroup joints under one root (2)", 2)
+    window.fixed_bind_update_combo.addItem("Keep source hierarchy (CLI 0)", 0)
+    window.fixed_bind_update_combo.addItem("Partial hierarchy update (CLI 1)", 1)
+    window.fixed_bind_update_combo.addItem("Regroup under one solved root (CLI 2)", 2)
     window.fixed_bind_update_combo.setCurrentIndex(0)
+    window.fixed_bind_update_combo.setToolTip(
+        "Direct DemBones CLI hierarchy mode (--bindUpdate).\n"
+        "This controls only how DemBones updates the solved hierarchy.\n"
+        "It does not create an extra empty wrapper root in Maya."
+    )
+    window.fixed_wrap_world_root_checkbox = QtWidgets.QCheckBox(
+        "Create empty world root at 0,0,0",
+        window,
+    )
+    window.fixed_wrap_world_root_checkbox.setChecked(False)
+    window.fixed_wrap_world_root_checkbox.setToolTip(
+        "Adds one extra static wrapper joint above the solved result during final clean-scene FBX export.\n"
+        "The wrapper is written into the final deliverable FBX and is not part of the DemBones solve."
+    )
     window.fixed_frame_start = OptionSliderWidget(parent=window)
     window.fixed_frame_start.setRange(-100000, 100000)
     window.fixed_frame_start.setValue(1)
@@ -292,7 +318,8 @@ def build_window_ui(window) -> None:
     main_form.addRow("Frame Range", frame_range_row)
     main_form.addRow("FBX Name", window.fbx_name_edit)
     main_form.addRow("Clip Prefix", window.clip_prefix_edit)
-    main_form.addRow("Hierarchy Build Mode", window.bind_update_combo)
+    main_form.addRow("DemBones Hierarchy Mode", window.bind_update_combo)
+    main_form.addRow("World Root Wrapper", window.wrap_world_root_checkbox)
     main_layout.addLayout(main_form)
 
     window.context_tip_panel = QtWidgets.QWidget(window.main_tab)
@@ -358,7 +385,8 @@ def build_window_ui(window) -> None:
     fixed_form.addRow("Source Alembic", fixed_alembic_row)
     fixed_form.addRow("Bound Init Mesh", fixed_bound_mesh_row)
     fixed_form.addRow("Fixed Hierarchy Root", fixed_root_row)
-    fixed_form.addRow("Hierarchy Build Mode", window.fixed_bind_update_combo)
+    fixed_form.addRow("DemBones Hierarchy Mode", window.fixed_bind_update_combo)
+    fixed_form.addRow("World Root Wrapper", window.fixed_wrap_world_root_checkbox)
     fixed_layout.addLayout(fixed_form)
 
     window.fixed_variant_note_label = QtWidgets.QLabel(

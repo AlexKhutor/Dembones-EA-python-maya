@@ -202,6 +202,8 @@ class DBExportWindow(QtWidgets.QDialog):
             self.import_result_checkbox,
             self.debug_cli_checkbox,
             self.write_debug_logs_checkbox,
+            self.wrap_world_root_checkbox,
+            self.fixed_wrap_world_root_checkbox,
         )
         for widget in checkboxes:
             widget.toggled.connect(self._schedule_save_ui_settings)
@@ -258,6 +260,9 @@ class DBExportWindow(QtWidgets.QDialog):
             )
             self.bones_spin.setValue(self._settings_int(settings, "bones", int(self.bones_spin.value())))
             self._set_combo_value(settings=settings, combo=self.bind_update_combo, key="bind_update")
+            self.wrap_world_root_checkbox.setChecked(
+                self._settings_bool(settings, "wrap_world_root", self.wrap_world_root_checkbox.isChecked())
+            )
             self.nnz_spin.setValue(self._settings_int(settings, "nnz", int(self.nnz_spin.value())))
             self.init_iters_spin.setValue(
                 self._settings_int(settings, "n_init_iters", int(self.init_iters_spin.value()))
@@ -294,6 +299,13 @@ class DBExportWindow(QtWidgets.QDialog):
             )
             self._set_combo_value(settings=settings, combo=self.fixed_variant_combo, key="fixed_solve_variant")
             self._set_combo_value(settings=settings, combo=self.fixed_bind_update_combo, key="fixed_bind_update")
+            self.fixed_wrap_world_root_checkbox.setChecked(
+                self._settings_bool(
+                    settings,
+                    "fixed_wrap_world_root",
+                    self.fixed_wrap_world_root_checkbox.isChecked(),
+                )
+            )
             self.fixed_frame_start.setValue(
                 self._settings_int(settings, "fixed_frame_start", int(self.fixed_frame_start.value()))
             )
@@ -371,6 +383,7 @@ class DBExportWindow(QtWidgets.QDialog):
             settings.setValue("auto_clip_prefix", self.clip_prefix_edit.text().strip())
             settings.setValue("bones", int(self.bones_spin.value()))
             settings.setValue("bind_update", self.bind_update_combo.currentData())
+            settings.setValue("wrap_world_root", bool(self.wrap_world_root_checkbox.isChecked()))
             settings.setValue("nnz", int(self.nnz_spin.value()))
             settings.setValue("n_init_iters", int(self.init_iters_spin.value()))
             settings.setValue("n_iters", int(self.iters_spin.value()))
@@ -387,6 +400,7 @@ class DBExportWindow(QtWidgets.QDialog):
             settings.setValue("fixed_bound_init_mesh", self.fixed_bound_init_mesh_edit.text().strip())
             settings.setValue("fixed_hierarchy_root", self.fixed_hierarchy_root_edit.text().strip())
             settings.setValue("fixed_bind_update", self.fixed_bind_update_combo.currentData())
+            settings.setValue("fixed_wrap_world_root", bool(self.fixed_wrap_world_root_checkbox.isChecked()))
             settings.setValue("fixed_frame_start", int(self.fixed_frame_start.value()))
             settings.setValue("fixed_frame_end", int(self.fixed_frame_end.value()))
             settings.setValue("fixed_frame_step", int(self.fixed_frame_step.value()))
@@ -482,6 +496,7 @@ class DBExportWindow(QtWidgets.QDialog):
                 fbx_name=self.fixed_fbx_name_edit.text().strip(),
                 clip_prefix=self.fixed_clip_prefix_edit.text().strip(),
                 import_result_in_scene=bool(self.import_result_checkbox.isChecked()),
+                wrap_world_root=bool(self.fixed_wrap_world_root_checkbox.isChecked()),
                 bones=int(self.bones_spin.value()),
                 bind_update=int(bind_update_value),
                 nnz=int(self.nnz_spin.value()),
@@ -509,6 +524,7 @@ class DBExportWindow(QtWidgets.QDialog):
             fbx_name=self.fbx_name_edit.text().strip(),
             clip_prefix=self.clip_prefix_edit.text().strip(),
             import_result_in_scene=bool(self.import_result_checkbox.isChecked()),
+            wrap_world_root=bool(self.wrap_world_root_checkbox.isChecked()),
             bones=int(self.bones_spin.value()),
             bind_update=int(bind_update_value),
             nnz=int(self.nnz_spin.value()),

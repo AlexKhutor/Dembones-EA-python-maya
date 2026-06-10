@@ -102,6 +102,7 @@ db_export_v3.open_window()
 - [User Guide](docs/USER_GUIDE.md)
 - [Status](docs/STATUS.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 

@@ -19,6 +19,7 @@ class CliRunSettings:
     fbx_name: str = ""
     clip_prefix: str = ""
     import_result_in_scene: bool = True
+    wrap_world_root: bool = False
     bones: int = 128
     bind_update: int = 2
     nnz: int = 8
