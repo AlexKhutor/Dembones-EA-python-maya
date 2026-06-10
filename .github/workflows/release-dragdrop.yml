@@ -1,0 +1,80 @@
+name: Release Drag-and-Drop Package
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Existing git tag to publish, for example v3.2.14"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release-dragdrop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            TAG_NAME="${{ inputs.tag_name }}"
+            git fetch --tags --force
+            git checkout "${TAG_NAME}"
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          VERSION="${TAG_NAME#v}"
+          ASSET_NAME="DB_export_v3_dragdrop_${VERSION}.zip"
+          ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}"
+          NOTES_PATH="${RUNNER_TEMP}/release_notes.md"
+
+          awk -v ver="${VERSION}" '
+            $0 ~ "^## " ver "([[:space:]]|$)" { found=1; next }
+            found && $0 ~ "^## " { exit }
+            found { print }
+          ' CHANGELOG.md > "${NOTES_PATH}"
+
+          if [[ ! -s "${NOTES_PATH}" ]]; then
+            {
+              echo "- Release tag: ${TAG_NAME}"
+              echo "- Drag-and-drop package built from repository root files."
+            } > "${NOTES_PATH}"
+          fi
+
+          echo "TAG_NAME=${TAG_NAME}" >> "${GITHUB_ENV}"
+          echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
+          echo "ASSET_NAME=${ASSET_NAME}" >> "${GITHUB_ENV}"
+          echo "ASSET_PATH=${ASSET_PATH}" >> "${GITHUB_ENV}"
+          echo "NOTES_PATH=${NOTES_PATH}" >> "${GITHUB_ENV}"
+
+      - name: Build drag-and-drop release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          zip -r "${ASSET_PATH}" \
+            DB_export_v3_dragdrop.py \
+            db_export_v3_install.py \
+            db_export_v3
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: DB_export_v3 v${{ env.VERSION }}
+          body_path: ${{ env.NOTES_PATH }}
+          files: ${{ env.ASSET_PATH }}
+          fail_on_unmatched_files: true
