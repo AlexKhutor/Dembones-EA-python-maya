@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Existing git tag to publish, for example v3.2.14"
+        description: "Existing git tag to publish, for example v3.2.15"
         required: true
         type: string
 
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   release-dragdrop:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Check out source
@@ -25,50 +25,52 @@ jobs:
           fetch-depth: 0
 
       - name: Resolve release metadata
-        shell: bash
+        shell: pwsh
         run: |
-          set -euo pipefail
-
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            TAG_NAME="${{ inputs.tag_name }}"
+          if ("${env:GITHUB_EVENT_NAME}" -eq "workflow_dispatch") {
+            $tagName = "${{ inputs.tag_name }}"
             git fetch --tags --force
-            git checkout "${TAG_NAME}"
-          else
-            TAG_NAME="${GITHUB_REF_NAME}"
-          fi
+            git checkout $tagName
+          }
+          else {
+            $tagName = "${env:GITHUB_REF_NAME}"
+          }
 
-          VERSION="${TAG_NAME#v}"
-          ASSET_NAME="DB_export_v3_dragdrop_${VERSION}.zip"
-          ASSET_PATH="${RUNNER_TEMP}/${ASSET_NAME}"
-          NOTES_PATH="${RUNNER_TEMP}/release_notes.md"
+          $version = $tagName.Substring(1)
+          $outputDir = Join-Path $env:RUNNER_TEMP "dragdrop-release-$version"
+          New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 
-          awk -v ver="${VERSION}" '
-            $0 ~ "^## " ver "([[:space:]]|$)" { found=1; next }
-            found && $0 ~ "^## " { exit }
-            found { print }
-          ' CHANGELOG.md > "${NOTES_PATH}"
+          $notesPath = Join-Path $env:RUNNER_TEMP "release_notes.md"
+          $lines = Get-Content "CHANGELOG.md"
+          $capture = $false
+          $notes = New-Object System.Collections.Generic.List[string]
+          foreach ($line in $lines) {
+            if ($line -match "^##\s+$([regex]::Escape($version))(\s|$)") {
+              $capture = $true
+              continue
+            }
+            if ($capture -and $line -match "^##\s+") {
+              break
+            }
+            if ($capture) {
+              $notes.Add($line)
+            }
+          }
+          if ($notes.Count -eq 0) {
+            $notes.Add("- Release tag: $tagName")
+            $notes.Add("- Drag-and-drop package built from repository root files.")
+          }
+          Set-Content -Path $notesPath -Value $notes -Encoding UTF8
 
-          if [[ ! -s "${NOTES_PATH}" ]]; then
-            {
-              echo "- Release tag: ${TAG_NAME}"
-              echo "- Drag-and-drop package built from repository root files."
-            } > "${NOTES_PATH}"
-          fi
+          "TAG_NAME=$tagName" >> $env:GITHUB_ENV
+          "VERSION=$version" >> $env:GITHUB_ENV
+          "OUTPUT_DIR=$outputDir" >> $env:GITHUB_ENV
+          "NOTES_PATH=$notesPath" >> $env:GITHUB_ENV
 
-          echo "TAG_NAME=${TAG_NAME}" >> "${GITHUB_ENV}"
-          echo "VERSION=${VERSION}" >> "${GITHUB_ENV}"
-          echo "ASSET_NAME=${ASSET_NAME}" >> "${GITHUB_ENV}"
-          echo "ASSET_PATH=${ASSET_PATH}" >> "${GITHUB_ENV}"
-          echo "NOTES_PATH=${NOTES_PATH}" >> "${GITHUB_ENV}"
-
-      - name: Build drag-and-drop release archive
-        shell: bash
+      - name: Build drag-and-drop release archives
+        shell: pwsh
         run: |
-          set -euo pipefail
-          zip -r "${ASSET_PATH}" \
-            DB_export_v3_dragdrop.py \
-            db_export_v3_install.py \
-            db_export_v3
+          & ".\tools\build_dragdrop_release.ps1" -Version "${env:VERSION}" -OutputRoot "${env:OUTPUT_DIR}" -Clean
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
@@ -76,5 +78,8 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           name: DB_export_v3 v${{ env.VERSION }}
           body_path: ${{ env.NOTES_PATH }}
-          files: ${{ env.ASSET_PATH }}
+          files: |
+            ${{ env.OUTPUT_DIR }}\DB_export_v3_dragdrop_v${{ env.VERSION }}.zip
+            ${{ env.OUTPUT_DIR }}\DB_export_v3_dragdrop_v${{ env.VERSION }}.7z
+          overwrite_files: true
           fail_on_unmatched_files: true

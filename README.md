@@ -87,6 +87,7 @@ Important:
 - `DemBones.exe` is not committed to this public repository
 - first install may require internet access if the binary is not already installed locally
 - if `DemBones.exe` already exists in the Maya module install, the installer reuses it
+- GitHub Releases publish the public drag-and-drop installer package in both `.zip` and `.7z` formats
 
 ## Open UI Manually
 

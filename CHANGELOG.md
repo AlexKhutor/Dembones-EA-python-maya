@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.15 - 2026-06-11
+
+- Added automated public drag-and-drop release publishing through GitHub Actions.
+- Public GitHub Releases now publish both `.zip` and `.7z` archives for the artist-facing drag-and-drop installer package.
+- Added a local PowerShell build script so the same public package can be assembled manually for team handoff without using GitHub Releases.
+- Includes the optional World Root Wrapper final-export behavior from the current production runtime.
+
 ## 3.2.14 - 2026-06-10
 
 - Split the hierarchy UX into two independent controls:
