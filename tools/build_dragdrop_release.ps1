@@ -45,7 +45,7 @@ $repoRoot = Resolve-RepoRoot
 $resolvedVersion = Resolve-Version -RepoRoot $repoRoot -RequestedVersion $Version
 
 if (-not $OutputRoot) {
-    $OutputRoot = Join-Path (Split-Path -Parent $repoRoot) ("release\" + $resolvedVersion)
+    $OutputRoot = Join-Path $repoRoot ("release\" + $resolvedVersion)
 }
 
 $outputRootPath = [System.IO.Path]::GetFullPath($OutputRoot)

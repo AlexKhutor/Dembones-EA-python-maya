@@ -165,8 +165,8 @@ def build_window_ui(window) -> None:
     window.wrap_world_root_checkbox = QtWidgets.QCheckBox("Create empty world root at 0,0,0", window)
     window.wrap_world_root_checkbox.setChecked(False)
     window.wrap_world_root_checkbox.setToolTip(
-        "Adds one extra static wrapper joint above the solved result during final clean-scene FBX export.\n"
-        "The wrapper is written into the final deliverable FBX and is not part of the DemBones solve."
+        "Adds one extra static wrapper joint above the solved joint roots during final clean-scene FBX export.\n"
+        "Mesh geometry stays separate. The wrapper is written into the final deliverable FBX and is not part of the DemBones solve."
     )
 
     window.nnz_spin = OptionSliderWidget(parent=window)
@@ -263,8 +263,8 @@ def build_window_ui(window) -> None:
     )
     window.fixed_wrap_world_root_checkbox.setChecked(False)
     window.fixed_wrap_world_root_checkbox.setToolTip(
-        "Adds one extra static wrapper joint above the solved result during final clean-scene FBX export.\n"
-        "The wrapper is written into the final deliverable FBX and is not part of the DemBones solve."
+        "Adds one extra static wrapper joint above the solved joint roots during final clean-scene FBX export.\n"
+        "Mesh geometry stays separate. The wrapper is written into the final deliverable FBX and is not part of the DemBones solve."
     )
     window.fixed_frame_start = OptionSliderWidget(parent=window)
     window.fixed_frame_start.setRange(-100000, 100000)

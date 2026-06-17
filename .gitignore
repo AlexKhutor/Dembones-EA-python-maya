@@ -6,4 +6,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.7z
+release/
 release_build/

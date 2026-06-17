@@ -202,23 +202,7 @@ def _export_candidate_nodes(cmds) -> list[str]:
 
 
 def _wrapper_parent_targets(cmds) -> list[str]:
-    candidates = _export_candidate_nodes(cmds)
-    candidate_set = set(candidates)
-    targets: list[str] = []
-    for node in candidates:
-        current = node
-        has_candidate_ancestor = False
-        while True:
-            parent = cmds.listRelatives(current, parent=True, fullPath=True) or []
-            if not parent:
-                break
-            current = parent[0]
-            if current in candidate_set:
-                has_candidate_ancestor = True
-                break
-        if not has_candidate_ancestor:
-            targets.append(node)
-    return targets
+    return _root_joint_nodes(cmds)
 
 
 def _apply_world_root_wrapper(cmds, log: _Logger) -> dict:

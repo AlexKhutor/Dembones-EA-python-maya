@@ -1,6 +1,6 @@
 # Status
 
-Current production runtime version: `3.2.13`
+Current production runtime version: `3.2.16`
 
 ## Shipping Baseline
 
