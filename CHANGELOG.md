@@ -5,7 +5,7 @@
 - Fixed the optional `World Root Wrapper` so it only reparents solved joint roots during final clean-scene export.
 - Mesh geometry now stays separate instead of being parented under the extra wrapper joint.
 - Clarified the wrapper-root UI/help text to state that it is an export-only joint container for skeleton roots, not a geometry grouping step.
-- Kept local release output assembly under `source/release/` so the isolate-workspace root stays clean.
+- Kept local release output assembly inside the repository `release/` folder for cleaner package builds and handoff.
 
 ## 3.2.15 - 2026-06-11
 
