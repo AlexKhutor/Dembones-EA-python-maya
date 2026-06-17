@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.17 - 2026-06-17
+
+- Fixed scene-import postprocessing so a missing or zero source motion probe no longer crashes with `float(None)`.
+- `motion_ratio_vs_source` now stays unavailable when the sampled source range is static or unsupported instead of failing the whole import path.
+
 ## 3.2.16 - 2026-06-17
 
 - Fixed the optional `World Root Wrapper` so it only reparents solved joint roots during final clean-scene export.

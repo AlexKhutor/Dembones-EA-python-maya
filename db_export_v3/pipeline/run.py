@@ -978,7 +978,7 @@ def import_cli_result(prepared: PreparedRun, namespace: str, settings: CliRunSet
     )
     ratio = motion_ratio(prepared.source_motion_probe, float(result.get("chosen_mesh_motion_max") or 0.0))
     log("import_motion_ratio_vs_source: {0}".format(ratio))
-    result["motion_ratio_vs_source"] = float(ratio)
+    result["motion_ratio_vs_source"] = float(ratio) if ratio is not None else None
     if str(prepared.solve_mode or "").strip() == "fixed_bones":
         baseline_probe = (prepared.debug_info or {}).get("initFbxProbe") or {}
         candidate_probe = result.get("contract_probe") or {}
@@ -1011,7 +1011,7 @@ def import_exported_result(
     )
     ratio = motion_ratio(prepared.source_motion_probe, float(result.get("chosen_mesh_motion_max") or 0.0))
     log("result_import_motion_ratio_vs_source: {0}".format(ratio))
-    result["motion_ratio_vs_source"] = float(ratio)
+    result["motion_ratio_vs_source"] = float(ratio) if ratio is not None else None
     if str(prepared.solve_mode or "").strip() == "fixed_bones":
         baseline_probe = (prepared.debug_info or {}).get("initFbxProbe") or {}
         candidate_probe = result.get("contract_probe") or {}

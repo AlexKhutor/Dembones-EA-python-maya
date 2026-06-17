@@ -1,6 +1,6 @@
 # User Guide
 
-Current runtime version: `3.2.16`
+Current runtime version: `3.2.17`
 
 ## Install
 
